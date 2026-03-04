@@ -1,0 +1,70 @@
+{
+  "projectType": "api-service",
+  "projectName": "Password Manager API",
+  "projectDescription": "A Laravel-based REST API for secure password management with CRUD operations",
+  "theme": "palm",
+  "primaryColor": "#040404",
+  "lightColor": "#ef370f",
+  "darkColor": "#f79d72",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "installation",
+              "configuration",
+              "authentication"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Endpoints",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/list-passwords",
+              "api-reference/get-password",
+              "api-reference/create-password",
+              "api-reference/update-password",
+              "api-reference/delete-password"
+            ]
+          },
+          {
+            "group": "Resources",
+            "pages": [
+              "api-reference/errors",
+              "api-reference/rate-limits"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "RESTful API for password management",
+    "CRUD operations for password entries",
+    "Soft delete support with status tracking",
+    "Built with Laravel 9 and Sanctum authentication",
+    "JSON response format with validation"
+  ],
+  "publicApiSurface": [
+    "GET /api/listPassword - List all active passwords",
+    "GET /api/getPassword/{id} - Retrieve a specific password",
+    "POST /api/createPassword - Create a new password entry",
+    "POST /api/updatePassword/{id} - Update an existing password",
+    "POST /api/deletePassword/{id} - Soft delete a password"
+  ]
+}
