@@ -1,0 +1,47 @@
+---
+title: 'API Overview'
+description: 'Overview of the Password Manager API endpoints and base URL'
+---
+
+## Base URL
+
+All API endpoints are prefixed with `/api`:
+
+```
+/api
+```
+
+## Available Endpoints
+
+The Password Manager API provides the following endpoints for managing passwords:
+
+### Password Management
+
+- **GET /api/listPassword** - Retrieve all active passwords
+- **GET /api/getPassword/{id}** - Retrieve a specific password by ID
+- **POST /api/createPassword** - Create a new password entry
+- **POST /api/updatePassword/{id}** - Update an existing password
+- **POST /api/deletePassword/{id}** - Soft delete a password (sets status to 0)
+
+## Authentication
+
+Currently, the API endpoints do not require authentication. All endpoints are publicly accessible.
+
+## Response Format
+
+All API responses are returned in JSON format. Successful responses typically include:
+
+- **200** - Success
+- **400** - Bad Request (validation errors)
+- **404** - Not Found
+- **500** - Internal Server Error
+
+## Data Model
+
+Password entries contain the following fields:
+
+- `id` - Unique identifier (auto-generated)
+- `password` - The password value
+- `sistema` - System/application name
+- `usuario` - Username associated with the password
+- `status` - Status flag (1 = active, 0 = deleted)

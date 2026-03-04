@@ -1,0 +1,134 @@
+---
+title: Introduction
+description: A RESTful API for managing passwords securely with full CRUD operations
+---
+
+## Welcome to Password Manager API
+
+The Password Manager API is a Laravel-based RESTful service that provides secure storage and management of password credentials. Built with Laravel 9 and Laravel Sanctum, it offers a simple yet powerful solution for applications that need to store and retrieve sensitive password information.
+
+## What is Password Manager API?
+
+Password Manager API allows you to:
+
+- **Store passwords securely** - Save password credentials associated with specific systems and users
+- **Retrieve credentials** - Access stored passwords individually or in bulk
+- **Update existing entries** - Modify password information as credentials change
+- **Soft delete passwords** - Remove passwords from active use while maintaining data integrity
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Complete CRUD Operations" icon="database">
+    Full create, read, update, and delete functionality for password management with validation
+  </Card>
+  
+  <Card title="RESTful Design" icon="globe">
+    Clean, intuitive API endpoints following REST principles for easy integration
+  </Card>
+  
+  <Card title="Soft Delete" icon="shield-check">
+    Passwords are marked as inactive rather than permanently deleted, preserving data history
+  </Card>
+  
+  <Card title="Laravel Framework" icon="server">
+    Built on Laravel 9 with modern PHP practices and robust error handling
+  </Card>
+</CardGroup>
+
+## How It Works
+
+The API manages password entries with three core attributes:
+
+- **password** - The encrypted or plain text password value
+- **sistema** - The system or service the password belongs to
+- **usuario** - The username associated with the password
+
+Each password entry is automatically assigned a unique ID and has a status flag for soft deletion.
+
+## Data Model
+
+Passwords are stored in a MySQL database with the following structure:
+
+```php
+protected $fillable = [
+    'password',
+    'sistema',
+    'usuario'
+];
+```
+
+The API uses Laravel's Eloquent ORM for database operations, providing a clean abstraction layer over SQL queries.
+
+## Use Cases
+
+<AccordionGroup>
+  <Accordion title="Application Credential Storage">
+    Store and manage API keys, database credentials, and service passwords for your applications
+  </Accordion>
+  
+  <Accordion title="Team Password Sharing">
+    Enable teams to securely share credentials for shared services and platforms
+  </Accordion>
+  
+  <Accordion title="Password Vault Backend">
+    Use as the backend service for a custom password manager application
+  </Accordion>
+  
+  <Accordion title="DevOps Automation">
+    Integrate with CI/CD pipelines to retrieve credentials for automated deployments
+  </Accordion>
+</AccordionGroup>
+
+## API Architecture
+
+The Password Manager API follows a standard Laravel MVC architecture:
+
+- **Routes** - Defined in `routes/api.php` with the `/api` prefix
+- **Controller** - `passwordsController` handles all password operations
+- **Model** - `Passwords` model represents password entries
+- **Validation** - Request validation ensures data integrity
+
+## Technology Stack
+
+- **PHP** 8.0.2 or higher
+- **Laravel Framework** 9.19+
+- **Laravel Sanctum** 3.0+ for API authentication
+- **MySQL** database for data persistence
+- **Eloquent ORM** for database operations
+
+## Response Format
+
+All API responses return JSON with consistent formatting:
+
+```json
+{
+  "message": "Operation status message",
+  "status": 200,
+  "passwords": {}
+}
+```
+
+Error responses include detailed error information:
+
+```json
+{
+  "message": "Invalid data",
+  "errors": {
+    "password": ["The password field is required."]
+  },
+  "status": 400
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Get up and running in 5 minutes with your first API call
+  </Card>
+  
+  <Card title="API Reference" icon="code" href="/api-reference">
+    Explore all available endpoints and parameters
+  </Card>
+</CardGroup>

@@ -1,0 +1,278 @@
+---
+title: Configuration
+description: Configure environment variables and application settings for the Password Manager API
+---
+
+## Environment Variables
+
+The Password Manager API uses environment variables defined in the `.env` file for configuration. Below are all available configuration options from `.env.example`.
+
+### Application Settings
+
+Core application configuration:
+
+```bash
+APP_NAME=Laravel
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://localhost
+```
+
+<ParamField path="APP_NAME" type="string" default="Laravel">
+  The name of your application. This is used in notifications and other user-facing messages.
+</ParamField>
+
+<ParamField path="APP_ENV" type="string" default="local">
+  The application environment. Set to `production` for live deployments, `local` for development.
+</ParamField>
+
+<ParamField path="APP_KEY" type="string" required>
+  Application encryption key. Generate using `php artisan key:generate`. Never commit this to version control.
+</ParamField>
+
+<ParamField path="APP_DEBUG" type="boolean" default="true">
+  Enable debug mode. Set to `false` in production to hide error details from users.
+  
+  <Warning>
+    Never set `APP_DEBUG=true` in production environments as it exposes sensitive information.
+  </Warning>
+</ParamField>
+
+<ParamField path="APP_URL" type="string" default="http://localhost">
+  The base URL of your application. Update this to match your production domain.
+</ParamField>
+
+### Database Configuration
+
+Database connection settings:
+
+```bash
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+<ParamField path="DB_CONNECTION" type="string" default="mysql">
+  Database driver. Supported values: `mysql`, `pgsql`, `sqlite`, `sqlsrv`
+</ParamField>
+
+<ParamField path="DB_HOST" type="string" default="127.0.0.1">
+  Database server hostname or IP address
+</ParamField>
+
+<ParamField path="DB_PORT" type="integer" default="3306">
+  Database server port (3306 for MySQL, 5432 for PostgreSQL)
+</ParamField>
+
+<ParamField path="DB_DATABASE" type="string" required>
+  Name of the database to connect to
+</ParamField>
+
+<ParamField path="DB_USERNAME" type="string" required>
+  Database username
+</ParamField>
+
+<ParamField path="DB_PASSWORD" type="string">
+  Database password. Leave empty if no password is required (not recommended for production)
+</ParamField>
+
+### Logging Configuration
+
+Control application logging behavior:
+
+```bash
+LOG_CHANNEL=stack
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=debug
+```
+
+<ParamField path="LOG_CHANNEL" type="string" default="stack">
+  Logging channel. Available channels: `stack`, `single`, `daily`, `slack`, `syslog`, `errorlog`
+</ParamField>
+
+<ParamField path="LOG_LEVEL" type="string" default="debug">
+  Minimum log level to record. Options: `debug`, `info`, `notice`, `warning`, `error`, `critical`, `alert`, `emergency`
+</ParamField>
+
+### Cache and Session
+
+Cache and session driver configuration:
+
+```bash
+CACHE_DRIVER=file
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+QUEUE_CONNECTION=sync
+```
+
+<ParamField path="CACHE_DRIVER" type="string" default="file">
+  Cache driver. Options: `file`, `redis`, `memcached`, `database`, `array`
+</ParamField>
+
+<ParamField path="SESSION_DRIVER" type="string" default="file">
+  Session storage driver. Options: `file`, `cookie`, `database`, `redis`, `memcached`, `array`
+</ParamField>
+
+<ParamField path="SESSION_LIFETIME" type="integer" default="120">
+  Session lifetime in minutes
+</ParamField>
+
+<ParamField path="QUEUE_CONNECTION" type="string" default="sync">
+  Queue driver. Options: `sync`, `database`, `redis`, `sqs`, `beanstalkd`
+</ParamField>
+
+### Redis Configuration
+
+Redis server settings (if using Redis for cache, sessions, or queues):
+
+```bash
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+```
+
+<ParamField path="REDIS_HOST" type="string" default="127.0.0.1">
+  Redis server hostname
+</ParamField>
+
+<ParamField path="REDIS_PASSWORD" type="string">
+  Redis authentication password. Set to `null` if no password is configured
+</ParamField>
+
+<ParamField path="REDIS_PORT" type="integer" default="6379">
+  Redis server port
+</ParamField>
+
+### Mail Configuration
+
+Email delivery settings:
+
+```bash
+MAIL_MAILER=smtp
+MAIL_HOST=mailpit
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+<ParamField path="MAIL_MAILER" type="string" default="smtp">
+  Mail driver. Options: `smtp`, `sendmail`, `mailgun`, `ses`, `postmark`, `log`
+</ParamField>
+
+<ParamField path="MAIL_HOST" type="string" default="mailpit">
+  SMTP server hostname
+</ParamField>
+
+<ParamField path="MAIL_PORT" type="integer" default="1025">
+  SMTP server port
+</ParamField>
+
+<ParamField path="MAIL_ENCRYPTION" type="string">
+  Email encryption protocol. Options: `tls`, `ssl`, or `null` for no encryption
+</ParamField>
+
+<ParamField path="MAIL_FROM_ADDRESS" type="string" required>
+  Default sender email address
+</ParamField>
+
+### Broadcasting and Queues
+
+Real-time broadcasting configuration:
+
+```bash
+BROADCAST_DRIVER=log
+FILESYSTEM_DISK=local
+```
+
+<ParamField path="BROADCAST_DRIVER" type="string" default="log">
+  Broadcasting driver. Options: `pusher`, `redis`, `log`, `null`
+</ParamField>
+
+<ParamField path="FILESYSTEM_DISK" type="string" default="local">
+  Default filesystem disk. Options: `local`, `public`, `s3`
+</ParamField>
+
+### AWS Configuration
+
+Amazon Web Services settings (if using S3 for file storage):
+
+```bash
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=
+AWS_USE_PATH_STYLE_ENDPOINT=false
+```
+
+<Note>
+  AWS credentials are only required if you're using S3 for file storage. Leave these empty if using local storage.
+</Note>
+
+### Pusher Configuration
+
+Pusher real-time messaging settings:
+
+```bash
+PUSHER_APP_ID=
+PUSHER_APP_KEY=
+PUSHER_APP_SECRET=
+PUSHER_HOST=
+PUSHER_PORT=443
+PUSHER_SCHEME=https
+PUSHER_APP_CLUSTER=mt1
+```
+
+<Note>
+  Pusher configuration is only needed if using Pusher for real-time broadcasting features.
+</Note>
+
+## Configuration Files
+
+Beyond environment variables, you can customize the application by editing configuration files in the `config/` directory:
+
+- `config/app.php` - Application settings, service providers, aliases
+- `config/database.php` - Database connections and settings
+- `config/auth.php` - Authentication guards and providers
+- `config/sanctum.php` - API authentication configuration
+- `config/mail.php` - Email service configuration
+- `config/cache.php` - Cache store configuration
+- `config/queue.php` - Queue driver configuration
+
+### Caching Configuration
+
+After modifying configuration files, clear and cache the configuration:
+
+```bash
+php artisan config:cache
+```
+
+To clear cached configuration:
+
+```bash
+php artisan config:clear
+```
+
+## Production Recommendations
+
+For production deployments, ensure these settings:
+
+```bash
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://your-domain.com
+```
+
+Additionally:
+
+1. Use Redis or Memcached for caching
+2. Configure queue workers for background jobs
+3. Enable HTTPS and set `SESSION_SECURE_COOKIE=true`
+4. Set appropriate `SESSION_LIFETIME` values
+5. Configure proper logging with rotation

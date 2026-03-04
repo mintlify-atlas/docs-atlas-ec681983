@@ -1,97 +1,255 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: Password Manager API Documentation
+mode: custom
 ---
 
-## Setting up
+<div className="relative bg-gradient-to-br from-[#040404] via-[#1a1a1a] to-[#2d2d2d] dark:from-[#040404] dark:via-[#0f0f0f] dark:to-[#1a1a1a] overflow-hidden">
+  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItMnptMCAwdjItMnptLTItMmgyLTJ6bTAtMnYyLTJ6bS0yIDJoMi0yem0wIDJ2LTIgMnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-40"></div>
+  
+  <div className="relative max-w-7xl mx-auto px-6 sm:px-8 py-16 sm:py-20 lg:py-24">
+    <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+      <div className="lg:col-span-7">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6">
+          Secure Password Management API
+        </h1>
+        <p className="text-base sm:text-lg lg:text-xl text-gray-300 dark:text-gray-400 max-w-2xl mb-6 sm:mb-8">
+          A Laravel-based REST API for managing passwords securely. Build password management features into your applications with simple CRUD operations and robust validation.
+        </p>
+        <div className="flex flex-wrap gap-3 sm:gap-4">
+          <a 
+            href="/quickstart" 
+            className="inline-flex items-center px-5 sm:px-6 py-2.5 sm:py-3 bg-[#ef370f] hover:bg-[#d43010] text-white font-semibold rounded-lg transition-colors no-underline"
+          >
+            Get Started
+          </a>
+          <a 
+            href="/api-reference/overview" 
+            className="inline-flex items-center px-5 sm:px-6 py-2.5 sm:py-3 border border-white/30 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-lg transition-colors no-underline"
+          >
+            API Reference
+          </a>
+        </div>
+      </div>
+      
+      <div className="lg:col-span-5 hidden lg:block">
+        <div className="bg-[#1a1d27]/60 dark:bg-[#1a1d27]/80 rounded-2xl p-6 border border-[#27272a] backdrop-blur-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-3 h-3 rounded-full bg-[#ef370f]"></div>
+            <div className="w-3 h-3 rounded-full bg-[#f79d72]"></div>
+            <div className="w-3 h-3 rounded-full bg-gray-600"></div>
+          </div>
+          <pre className="text-sm text-gray-300 overflow-x-auto">
+{`POST /api/createPassword
+Content-Type: application/json
 
-Get your documentation site up and running in minutes.
+{
+  "password": "mySecurePass123",
+  "sistema": "Production DB",
+  "usuario": "admin"
+}
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+// Response
+{
+  "message": "SE CREÓ UNA NUEVA CONTRASEÑA",
+  "status": 200
+}`}
+          </pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-## Make it yours
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
+    Quick Start
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Get your password management API up and running in minutes
+  </p>
 
-Design a docs site that looks great and empowers your users.
+  <Steps>
+    <Step title="Clone and Install">
+      Clone the repository and install dependencies:
+      
+      ```bash
+      git clone https://github.com/JanContrerasDev/gestor-contrasenas.git
+      cd gestor-contrasenas
+      composer install
+      ```
+    </Step>
 
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
-  </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
-  </Card>
+    <Step title="Configure Environment">
+      Copy the example environment file and configure your database:
+      
+      ```bash
+      cp .env.example .env
+      php artisan key:generate
+      ```
+      
+      Update your `.env` file with database credentials.
+    </Step>
+
+    <Step title="Run Migrations">
+      Set up the database schema:
+      
+      ```bash
+      php artisan migrate
+      ```
+    </Step>
+
+    <Step title="Make Your First API Call">
+      Start the development server and test the API:
+      
+      ```bash
+      php artisan serve
+      ```
+      
+      Create a password entry:
+      
+      ```bash
+      curl -X POST http://localhost:8000/api/createPassword \
+        -H "Content-Type: application/json" \
+        -d '{
+          "password": "mySecurePass123",
+          "sistema": "Production DB",
+          "usuario": "admin"
+        }'
+      ```
+    </Step>
+  </Steps>
+</div>
+
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
+    Explore the API
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Comprehensive endpoints for password management
+  </p>
+
+  <CardGroup cols={2}>
     <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
-  </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
-  </Card>
-</Columns>
+      title="List Passwords"
+      icon="list"
+      href="/api-reference/list-passwords"
+    >
+      Retrieve all active password entries in your system
+    </Card>
+    <Card
+      title="Get Password"
+      icon="key"
+      href="/api-reference/get-password"
+    >
+      Fetch a specific password entry by ID
+    </Card>
+    <Card
+      title="Create Password"
+      icon="plus"
+      href="/api-reference/create-password"
+    >
+      Add new password entries with validation
+    </Card>
+    <Card
+      title="Update Password"
+      icon="pen-to-square"
+      href="/api-reference/update-password"
+    >
+      Modify existing password entries
+    </Card>
+    <Card
+      title="Delete Password"
+      icon="trash"
+      href="/api-reference/delete-password"
+    >
+      Soft delete password entries from the system
+    </Card>
+    <Card
+      title="Error Handling"
+      icon="triangle-exclamation"
+      href="/api-reference/errors"
+    >
+      Understand API error responses and status codes
+    </Card>
+  </CardGroup>
+</div>
 
-## Create beautiful pages
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
+    Key Features
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Built with modern Laravel best practices
+  </p>
 
-Everything you need to create world-class documentation.
+  <div className="grid md:grid-cols-3 gap-6">
+    <div className="bg-white dark:bg-[#1a1d27] rounded-xl p-6 border border-gray-200 dark:border-[#27272a]">
+      <div className="w-12 h-12 bg-[#ef370f]/10 dark:bg-[#ef370f]/20 rounded-lg flex items-center justify-center mb-4">
+        <svg className="w-6 h-6 text-[#ef370f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        RESTful Design
+      </h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Clean, predictable API endpoints following REST conventions for easy integration
+      </p>
+    </div>
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+    <div className="bg-white dark:bg-[#1a1d27] rounded-xl p-6 border border-gray-200 dark:border-[#27272a]">
+      <div className="w-12 h-12 bg-[#ef370f]/10 dark:bg-[#ef370f]/20 rounded-lg flex items-center justify-center mb-4">
+        <svg className="w-6 h-6 text-[#ef370f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      </div>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        Laravel Sanctum
+      </h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Built-in authentication support with Laravel Sanctum for secure API access
+      </p>
+    </div>
 
-## Need inspiration?
+    <div className="bg-white dark:bg-[#1a1d27] rounded-xl p-6 border border-gray-200 dark:border-[#27272a]">
+      <div className="w-12 h-12 bg-[#ef370f]/10 dark:bg-[#ef370f]/20 rounded-lg flex items-center justify-center mb-4">
+        <svg className="w-6 h-6 text-[#ef370f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+      </div>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        Input Validation
+      </h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Comprehensive validation rules ensure data integrity and security
+      </p>
+    </div>
+  </div>
+</div>
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <div className="bg-gradient-to-r from-[#040404] to-[#1a1a1a] dark:from-[#0f1117] dark:to-[#1a1d27] rounded-2xl p-8 sm:p-12 border border-[#27272a]">
+    <div className="max-w-3xl">
+      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
+        Ready to get started?
+      </h2>
+      <p className="text-base sm:text-lg text-gray-300 dark:text-gray-400 mb-6">
+        Follow our quickstart guide to set up your password management API in minutes, or dive into the full API reference to explore all available endpoints.
+      </p>
+      <div className="flex flex-wrap gap-3 sm:gap-4">
+        <a 
+          href="/quickstart" 
+          className="inline-flex items-center px-5 sm:px-6 py-2.5 sm:py-3 bg-[#ef370f] hover:bg-[#d43010] text-white font-semibold rounded-lg transition-colors no-underline"
+        >
+          View Quickstart
+        </a>
+        <a 
+          href="/installation" 
+          className="inline-flex items-center px-5 sm:px-6 py-2.5 sm:py-3 border border-white/30 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-lg transition-colors no-underline"
+        >
+          Installation Guide
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

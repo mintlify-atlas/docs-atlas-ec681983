@@ -1,0 +1,315 @@
+---
+title: Authentication
+description: Set up API authentication using Laravel Sanctum for secure access to the Password Manager API
+---
+
+## Overview
+
+The Password Manager API uses Laravel Sanctum for API token authentication. Sanctum provides a lightweight authentication system for SPAs (single page applications), mobile applications, and simple token-based APIs.
+
+## How Sanctum Works
+
+Sanctum offers two authentication methods:
+
+1. **API Token Authentication** - Simple token-based authentication for third-party API consumers
+2. **SPA Authentication** - Cookie-based authentication for first-party single-page applications
+
+For this API, we primarily use API token authentication.
+
+## Installation
+
+Sanctum is already included in the project dependencies:
+
+```json
+"require": {
+    "laravel/sanctum": "^3.0"
+}
+```
+
+The `personal_access_tokens` table is created during migration and stores API tokens:
+
+```bash
+php artisan migrate
+```
+
+## User Model Configuration
+
+The `User` model is already configured with the `HasApiTokens` trait:
+
+```php app/Models/User.php
+use Laravel\Sanctum\HasApiTokens;
+
+class User extends Authenticatable
+{
+    use HasApiTokens, HasFactory, Notifiable;
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+}
+```
+
+This trait provides methods for issuing and managing API tokens.
+
+## Sanctum Configuration
+
+The Sanctum configuration is located at `config/sanctum.php`:
+
+### Stateful Domains
+
+Domains that receive stateful API authentication:
+
+```php config/sanctum.php
+'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
+    '%s%s',
+    'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
+    Sanctum::currentApplicationUrlWithPort()
+))),
+```
+
+<Note>
+  Add your frontend domain to `SANCTUM_STATEFUL_DOMAINS` in `.env` for SPA authentication.
+</Note>
+
+### Token Expiration
+
+By default, tokens do not expire:
+
+```php config/sanctum.php
+'expiration' => null,
+```
+
+To set token expiration (in minutes):
+
+```bash .env
+SANCTUM_EXPIRATION=1440  # 24 hours
+```
+
+### Authentication Guards
+
+Sanctum uses the web guard by default:
+
+```php config/sanctum.php
+'guard' => ['web'],
+```
+
+## Issuing API Tokens
+
+To issue API tokens to users, create an authentication endpoint:
+
+```php routes/api.php
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+
+Route::post('/login', function (Request $request) {
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
+
+    $user = User::where('email', $request->email)->first();
+
+    if (! $user || ! Hash::check($request->password, $user->password)) {
+        return response()->json([
+            'message' => 'Invalid credentials'
+        ], 401);
+    }
+
+    $token = $user->createToken('api-token')->plainTextToken;
+
+    return response()->json([
+        'token' => $token,
+        'user' => $user
+    ]);
+});
+```
+
+### Token Abilities
+
+You can assign specific abilities (permissions) to tokens:
+
+```php
+$token = $user->createToken('api-token', ['password:read', 'password:create'])->plainTextToken;
+```
+
+## Protecting Routes
+
+Use the `auth:sanctum` middleware to protect API routes:
+
+```php routes/api.php
+use App\Http\Controllers\Api\passwordsController;
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/listPassword', [passwordsController::class, 'listPasswords']);
+    Route::get('/getPassword/{id}', [passwordsController::class, 'showPasswords']);
+    Route::post('/createPassword', [passwordsController::class, 'createPasswords']);
+    Route::post('/updatePassword/{id}', [passwordsController::class, 'updatePasswords']);
+    Route::post('/deletePassword/{id}', [passwordsController::class, 'deletePasswords']);
+});
+```
+
+<Warning>
+  Currently, the API routes in `routes/api.php` are not protected by authentication. Add the `auth:sanctum` middleware to secure them.
+</Warning>
+
+## Making Authenticated Requests
+
+Include the API token in the `Authorization` header:
+
+```bash
+curl -X GET http://localhost:8000/api/listPassword \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Accept: application/json"
+```
+
+### Using JavaScript
+
+```javascript
+fetch('http://localhost:8000/api/listPassword', {
+  headers: {
+    'Authorization': 'Bearer YOUR_API_TOKEN',
+    'Accept': 'application/json'
+  }
+})
+.then(response => response.json())
+.then(data => console.log(data));
+```
+
+### Using Postman
+
+1. Select the **Authorization** tab
+2. Choose **Bearer Token** as the type
+3. Paste your API token in the **Token** field
+
+## Accessing Authenticated User
+
+In your controllers, access the authenticated user:
+
+```php
+public function listPasswords(Request $request)
+{
+    $user = $request->user(); // Get authenticated user
+    
+    // Your logic here
+}
+```
+
+## Token Management
+
+### Revoking Tokens
+
+Revoke all tokens for a user:
+
+```php
+// Revoke all tokens
+$user->tokens()->delete();
+```
+
+Revoke the current token:
+
+```php
+$request->user()->currentAccessToken()->delete();
+```
+
+Revoke a specific token:
+
+```php
+$user->tokens()->where('id', $tokenId)->delete();
+```
+
+### Logout Endpoint
+
+Create a logout endpoint to revoke tokens:
+
+```php routes/api.php
+Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
+    $request->user()->currentAccessToken()->delete();
+    
+    return response()->json([
+        'message' => 'Logged out successfully'
+    ]);
+});
+```
+
+## Checking Token Abilities
+
+If you've assigned abilities to tokens, check them in your code:
+
+```php
+if ($request->user()->tokenCan('password:create')) {
+    // User has permission to create passwords
+}
+```
+
+Or use middleware:
+
+```php
+Route::post('/createPassword', [passwordsController::class, 'createPasswords'])
+    ->middleware(['auth:sanctum', 'abilities:password:create']);
+```
+
+## CORS Configuration
+
+For cross-origin requests, ensure CORS is properly configured in `config/cors.php`:
+
+```php config/cors.php
+'paths' => ['api/*', 'sanctum/csrf-cookie'],
+'allowed_origins' => ['http://localhost:3000'], // Your frontend URL
+'allowed_methods' => ['*'],
+'allowed_headers' => ['*'],
+'supports_credentials' => true,
+```
+
+Update `.env` with your frontend URL:
+
+```bash
+SANCTUM_STATEFUL_DOMAINS=localhost:3000,127.0.0.1:3000
+```
+
+## Security Best Practices
+
+1. **Use HTTPS in production** - Always transmit tokens over secure connections
+2. **Set token expiration** - Configure reasonable expiration times for tokens
+3. **Implement rate limiting** - Protect authentication endpoints from brute force attacks
+4. **Rotate tokens** - Issue new tokens periodically and revoke old ones
+5. **Validate requests** - Always validate incoming request data
+6. **Store tokens securely** - Never expose tokens in URLs or client-side code
+7. **Monitor token usage** - Track `last_used_at` in the `personal_access_tokens` table
+
+## Rate Limiting
+
+Add rate limiting to authentication endpoints:
+
+```php routes/api.php
+use Illuminate\Support\Facades\RateLimiter;
+
+Route::middleware('throttle:6,1')->group(function () {
+    Route::post('/login', [AuthController::class, 'login']);
+});
+```
+
+This limits login attempts to 6 per minute.
+
+## Testing Authentication
+
+Test your protected endpoints:
+
+```bash
+# Create a user (if you have a registration endpoint)
+curl -X POST http://localhost:8000/api/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"John Doe","email":"john@example.com","password":"password123"}'
+
+# Login to get token
+curl -X POST http://localhost:8000/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"john@example.com","password":"password123"}'
+
+# Use the token to access protected routes
+curl -X GET http://localhost:8000/api/listPassword \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+  -H "Accept: application/json"
+```

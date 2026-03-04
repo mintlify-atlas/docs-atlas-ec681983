@@ -1,80 +1,353 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quickstart
+description: Get started with the Password Manager API in minutes
 ---
 
-## Get started in three steps
+## Get Started in 5 Minutes
 
-Get your documentation site running locally and make your first customization.
+This guide will walk you through setting up the Password Manager API and making your first API request.
 
-### Step 1: Set up your local environment
-
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+<Steps>
+  <Step title="Clone and Install">
+    First, clone the repository and install dependencies:
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+    ```bash
+    git clone <repository-url>
+    cd password-manager-api
+    composer install
+    ```
     
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
+    <Note>
+      Make sure you have PHP 8.0.2 or higher and Composer installed on your system.
+    </Note>
+  </Step>
+  
+  <Step title="Configure Environment">
+    Copy the example environment file and configure your database:
     
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
+    
+    Edit `.env` and set your database credentials:
+    
+    ```bash
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=password_manager
+    DB_USERNAME=your_username
+    DB_PASSWORD=your_password
+    ```
+  </Step>
+  
+  <Step title="Create Database and Run Migrations">
+    Create the database and run migrations to set up tables:
+    
+    ```bash
+    mysql -u your_username -p -e "CREATE DATABASE password_manager;"
+    php artisan migrate
+    ```
+    
+    This creates the necessary `passwords` table with columns for password, sistema, usuario, and status.
+  </Step>
+  
+  <Step title="Start the Development Server">
+    Launch the Laravel development server:
+    
+    ```bash
+    php artisan serve
+    ```
+    
+    Your API is now running at `http://localhost:8000`
+    
+    <Info>
+      By default, Laravel serves on port 8000. You can specify a different port with `--port=8080`
+    </Info>
+  </Step>
+</Steps>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+## Make Your First API Call
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+Now that your API is running, let's create your first password entry.
 
-### Step 3: Go live
+### Create a Password
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+Send a POST request to create a new password:
 
-## Next steps
+```bash
+curl -X POST http://localhost:8000/api/createPassword \
+  -H "Content-Type: application/json" \
+  -d '{
+    "password": "mySecurePassword123",
+    "sistema": "GitHub",
+    "usuario": "john.doe@example.com"
+  }'
+```
 
-Now that you have your docs running, explore these key features:
+**Expected Response:**
 
-<CardGroup cols={2}>
+```json
+{
+  "message": "SE CREÓ UNA NUEVA CONTRASEÑA",
+  "status": 200
+}
+```
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
+<Warning>
+  All three fields (password, sistema, usuario) are required. Missing any field will return a 400 error with validation details.
+</Warning>
 
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
+### Retrieve All Passwords
 
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
+Fetch all active passwords in the system:
 
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
+```bash
+curl http://localhost:8000/api/listPassword
+```
 
-</CardGroup>
+**Expected Response:**
+
+```json
+[
+  {
+    "id": 1,
+    "password": "mySecurePassword123",
+    "sistema": "GitHub",
+    "usuario": "john.doe@example.com",
+    "status": 1
+  }
+]
+```
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  The `listPassword` endpoint only returns passwords with `status = 1` (active passwords).
 </Note>
+
+### Get a Specific Password
+
+Retrieve a single password by ID:
+
+```bash
+curl http://localhost:8000/api/getPassword/1
+```
+
+**Expected Response:**
+
+```json
+{
+  "passwords": {
+    "id": 1,
+    "password": "mySecurePassword123",
+    "sistema": "GitHub",
+    "usuario": "john.doe@example.com",
+    "status": 1
+  },
+  "status": 200
+}
+```
+
+### Update a Password
+
+Modify an existing password entry:
+
+```bash
+curl -X POST http://localhost:8000/api/updatePassword/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "password": "newSecurePassword456",
+    "sistema": "GitHub",
+    "usuario": "john.doe@example.com"
+  }'
+```
+
+**Expected Response:**
+
+```json
+{
+  "password": {
+    "id": 1,
+    "password": "newSecurePassword456",
+    "sistema": "GitHub",
+    "usuario": "john.doe@example.com",
+    "status": 1
+  },
+  "message": "contraseña actualizada",
+  "status": 200
+}
+```
+
+### Delete a Password
+
+Soft delete a password (sets status to 0):
+
+```bash
+curl -X POST http://localhost:8000/api/deletePassword/1
+```
+
+**Expected Response:**
+
+```json
+{
+  "message": "contraseña borrada",
+  "status": 200
+}
+```
+
+<Info>
+  Deletion is a soft delete operation. The password is marked as inactive (`status = 0`) but remains in the database.
+</Info>
+
+## API Endpoints Summary
+
+<CardGroup cols={2}>
+  <Card title="List Passwords" icon="list">
+    `GET /api/listPassword`
+    
+    Returns all active passwords
+  </Card>
+  
+  <Card title="Get Password" icon="magnifying-glass">
+    `GET /api/getPassword/{id}`
+    
+    Retrieve a specific password by ID
+  </Card>
+  
+  <Card title="Create Password" icon="plus">
+    `POST /api/createPassword`
+    
+    Create a new password entry
+  </Card>
+  
+  <Card title="Update Password" icon="pen">
+    `POST /api/updatePassword/{id}`
+    
+    Update an existing password
+  </Card>
+</CardGroup>
+
+<Card title="Delete Password" icon="trash">
+  `POST /api/deletePassword/{id}`
+  
+  Soft delete a password entry
+</Card>
+
+## Error Handling
+
+The API returns standard HTTP status codes:
+
+- **200** - Success
+- **400** - Bad Request (validation errors)
+- **404** - Not Found (password doesn't exist)
+- **500** - Internal Server Error
+
+### Common Errors
+
+<CodeGroup>
+```json Validation Error (400)
+{
+  "message": "Invalid data",
+  "errors": {
+    "password": ["The password field is required."],
+    "sistema": ["The sistema field is required."],
+    "usuario": ["The usuario field is required."]
+  },
+  "status": 400
+}
+```
+
+```json Not Found (404)
+{
+  "message": "contraseña no encontrada",
+  "status": 404
+}
+```
+
+```json No Passwords (404)
+{
+  "message": "No passwords found",
+  "status": 404
+}
+```
+</CodeGroup>
+
+## Testing with Different Tools
+
+<Tabs>
+  <Tab title="cURL">
+    ```bash
+    # Create password
+    curl -X POST http://localhost:8000/api/createPassword \
+      -H "Content-Type: application/json" \
+      -d '{"password":"test123","sistema":"AWS","usuario":"admin"}'
+    ```
+  </Tab>
+  
+  <Tab title="JavaScript (fetch)">
+    ```javascript
+    const response = await fetch('http://localhost:8000/api/createPassword', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        password: 'test123',
+        sistema: 'AWS',
+        usuario: 'admin'
+      })
+    });
+    
+    const data = await response.json();
+    console.log(data);
+    ```
+  </Tab>
+  
+  <Tab title="Python (requests)">
+    ```python
+    import requests
+    
+    response = requests.post(
+        'http://localhost:8000/api/createPassword',
+        json={
+            'password': 'test123',
+            'sistema': 'AWS',
+            'usuario': 'admin'
+        }
+    )
+    
+    print(response.json())
+    ```
+  </Tab>
+  
+  <Tab title="PHP (Guzzle)">
+    ```php
+    use GuzzleHttp\Client;
+    
+    $client = new Client();
+    
+    $response = $client->post('http://localhost:8000/api/createPassword', [
+        'json' => [
+            'password' => 'test123',
+            'sistema' => 'AWS',
+            'usuario' => 'admin'
+        ]
+    ]);
+    
+    $data = json_decode($response->getBody(), true);
+    print_r($data);
+    ```
+  </Tab>
+</Tabs>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="API Reference" icon="book" href="/api-reference/overview">
+    Detailed documentation for all endpoints
+  </Card>
+  
+  <Card title="Authentication" icon="lock" href="/authentication">
+    Secure your API with Laravel Sanctum
+  </Card>
+</CardGroup>

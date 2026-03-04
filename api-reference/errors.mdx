@@ -1,0 +1,152 @@
+---
+title: 'Error Handling'
+description: 'Understanding error responses and status codes in the Password Manager API'
+---
+
+## Error Response Format
+
+The Password Manager API returns errors in a consistent JSON format. All error responses include a `message` field describing the error and a `status` field containing the HTTP status code.
+
+### Standard Error Structure
+
+```json
+{
+  "message": "Error description",
+  "status": 400
+}
+```
+
+### Validation Error Structure
+
+When request validation fails, the API returns a more detailed error response that includes a list of validation errors:
+
+```json
+{
+  "message": "Invalid data",
+  "errors": {
+    "password": ["The password field is required."],
+    "sistema": ["The sistema field is required."],
+    "usuario": ["The usuario field is required."]
+  },
+  "status": 400
+}
+```
+
+## HTTP Status Codes
+
+The API uses the following HTTP status codes:
+
+<ResponseField name="200" type="Success">
+  Request completed successfully. The response includes the requested data or confirmation message.
+</ResponseField>
+
+<ResponseField name="400" type="Bad Request">
+  The request contains invalid data or missing required fields. Check the `errors` object for validation details.
+</ResponseField>
+
+<ResponseField name="404" type="Not Found">
+  The requested resource was not found. This occurs when accessing a password with an invalid ID or when no passwords exist.
+</ResponseField>
+
+<ResponseField name="500" type="Internal Server Error">
+  An unexpected error occurred on the server, typically during database operations.
+</ResponseField>
+
+## Common Error Scenarios
+
+<AccordionGroup>
+  <Accordion title="Validation Errors (400)">
+    Returned when creating a password without required fields.
+
+    **Example Request:**
+    ```bash
+    curl -X POST https://api.example.com/api/createPassword \
+      -H "Content-Type: application/json" \
+      -d '{"password": "mypassword"}'
+    ```
+
+    **Error Response:**
+    ```json
+    {
+      "message": "Invalid data",
+      "errors": {
+        "sistema": ["The sistema field is required."],
+        "usuario": ["The usuario field is required."]
+      },
+      "status": 400
+    }
+    ```
+
+    **Required Fields:**
+    - `password` - The password value
+    - `sistema` - The system identifier
+    - `usuario` - The username associated with the password
+  </Accordion>
+
+  <Accordion title="Resource Not Found (404)">
+    Returned when attempting to access, update, or delete a password that doesn't exist.
+
+    **Example Request:**
+    ```bash
+    curl https://api.example.com/api/getPassword/999
+    ```
+
+    **Error Response:**
+    ```json
+    {
+      "message": "contraseña no encontrada",
+      "status": 404
+    }
+    ```
+
+    This error occurs in the following endpoints:
+    - `GET /api/getPassword/{id}` - When password ID doesn't exist
+    - `POST /api/updatePassword/{id}` - When trying to update non-existent password
+    - `POST /api/deletePassword/{id}` - When trying to delete non-existent password
+    - `GET /api/listPassword` - Returns this when no passwords are found
+  </Accordion>
+
+  <Accordion title="Server Errors (500)">
+    Returned when a database operation fails during password creation.
+
+    **Example Scenario:**
+    Database connection issues or constraint violations during password creation.
+
+    **Error Response:**
+    ```json
+    {
+      "message": "Error creating password",
+      "status": 500
+    }
+    ```
+
+    <Warning>
+      If you encounter 500 errors consistently, contact your system administrator to check database connectivity and logs.
+    </Warning>
+  </Accordion>
+</AccordionGroup>
+
+## Error Messages Reference
+
+The following error messages are returned by the API:
+
+| Endpoint | Status Code | Message | Description |
+|----------|-------------|---------|-------------|
+| `POST /api/createPassword` | 400 | Invalid data | Missing or invalid required fields |
+| `POST /api/createPassword` | 500 | Error creating password | Database operation failed |
+| `GET /api/listPassword` | 404 | No passwords found | No passwords exist in the system |
+| `GET /api/getPassword/{id}` | 404 | contraseña no encontrada | Password with specified ID not found |
+| `POST /api/updatePassword/{id}` | 404 | contraseña no encontrada | Password with specified ID not found |
+| `POST /api/deletePassword/{id}` | 404 | contraseña no encontrada | Password with specified ID not found |
+
+<Note>
+  All error responses include both a human-readable `message` and a numeric `status` field that matches the HTTP status code.
+</Note>
+
+## Best Practices
+
+1. **Check Status Codes**: Always check the HTTP status code to determine the type of error
+2. **Handle Validation Errors**: Parse the `errors` object for field-specific validation messages
+3. **Implement Retry Logic**: For 500 errors, implement exponential backoff retry logic
+4. **Log Errors**: Log error responses for debugging and monitoring purposes
+5. **User-Friendly Messages**: Convert technical error messages to user-friendly descriptions in your application

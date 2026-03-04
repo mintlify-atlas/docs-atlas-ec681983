@@ -1,0 +1,207 @@
+---
+title: 'Rate Limiting'
+description: 'API rate limiting policies and best practices'
+---
+
+## Overview
+
+The Password Manager API implements rate limiting to ensure fair usage and protect against abuse. Rate limits are applied per IP address for unauthenticated requests.
+
+## Rate Limit Configuration
+
+The API uses Laravel's built-in throttle middleware with the following limits:
+
+<Card title="API Rate Limit" icon="gauge">
+  **60 requests per minute** per IP address
+</Card>
+
+This rate limit applies to all API endpoints under the `/api` prefix.
+
+### How It Works
+
+- Rate limits are tracked per IP address (`$request->ip()`)
+- For authenticated users, limits could be tracked per user ID
+- The limit resets every minute
+- When the limit is exceeded, the API returns a `429 Too Many Requests` response
+
+## Rate Limit Headers
+
+When you make a request to the API, Laravel automatically includes rate limit information in the response headers:
+
+```http
+X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 59
+Retry-After: 60
+```
+
+<ResponseField name="X-RateLimit-Limit" type="integer">
+  The maximum number of requests allowed in the time window (60 per minute)
+</ResponseField>
+
+<ResponseField name="X-RateLimit-Remaining" type="integer">
+  The number of requests remaining in the current time window
+</ResponseField>
+
+<ResponseField name="Retry-After" type="integer">
+  The number of seconds to wait before making another request (only included when rate limit is exceeded)
+</ResponseField>
+
+## Rate Limit Exceeded Response
+
+When you exceed the rate limit, the API returns a 429 status code:
+
+```json HTTP 429
+{
+  "message": "Too Many Requests"
+}
+```
+
+**Response Headers:**
+```http
+HTTP/1.1 429 Too Many Requests
+X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 0
+Retry-After: 45
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Monitor Rate Limit Headers">
+    Always check the `X-RateLimit-Remaining` header in your responses to track how many requests you have left.
+
+    ```javascript
+    const response = await fetch('https://api.example.com/api/listPassword');
+    const remaining = response.headers.get('X-RateLimit-Remaining');
+    
+    if (remaining < 10) {
+      console.warn('Approaching rate limit:', remaining, 'requests remaining');
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Implement Exponential Backoff">
+    When you receive a 429 response, implement exponential backoff retry logic:
+
+    ```javascript
+    async function fetchWithRetry(url, maxRetries = 3) {
+      for (let i = 0; i < maxRetries; i++) {
+        const response = await fetch(url);
+        
+        if (response.status === 429) {
+          const retryAfter = response.headers.get('Retry-After');
+          const delay = retryAfter ? parseInt(retryAfter) * 1000 : Math.pow(2, i) * 1000;
+          
+          console.log(`Rate limited. Retrying after ${delay}ms`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue;
+        }
+        
+        return response;
+      }
+      
+      throw new Error('Max retries exceeded');
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Batch Requests Efficiently">
+    Instead of making individual requests in rapid succession, batch your operations:
+
+    <Warning>
+      Making 100 individual GET requests in a loop will quickly exceed the rate limit. Consider implementing request queuing or batching logic in your application.
+    </Warning>
+
+    **Example Strategy:**
+    - Queue requests in your application
+    - Process them at a controlled rate (e.g., 50 requests per minute)
+    - Spread requests evenly across the time window
+  </Accordion>
+
+  <Accordion title="Cache Responses">
+    Reduce API calls by implementing client-side caching:
+
+    ```javascript
+    // Cache password list for 5 minutes
+    const CACHE_DURATION = 5 * 60 * 1000;
+    let cachedPasswords = null;
+    let cacheTimestamp = 0;
+
+    async function getPasswords() {
+      const now = Date.now();
+      
+      if (cachedPasswords && (now - cacheTimestamp) < CACHE_DURATION) {
+        return cachedPasswords;
+      }
+      
+      const response = await fetch('https://api.example.com/api/listPassword');
+      cachedPasswords = await response.json();
+      cacheTimestamp = now;
+      
+      return cachedPasswords;
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Production Considerations
+
+<Note>
+  The current rate limit configuration (60 requests per minute) is suitable for most applications. However, for production environments with high traffic, consider the following:
+</Note>
+
+### Recommended Enhancements
+
+1. **Authenticated Rate Limits**
+   - Implement user authentication (API keys or tokens)
+   - Adjust rate limits based on user authentication status
+   - Allow higher limits for authenticated users
+
+2. **Tiered Rate Limits**
+   - Consider different rate limits for different user tiers
+   - Example: Free tier (60/min), Premium tier (300/min)
+
+3. **Endpoint-Specific Limits**
+   - Apply stricter limits to write operations (POST endpoints)
+   - Allow more generous limits for read operations (GET endpoints)
+
+4. **Rate Limit Monitoring**
+   - Track rate limit violations in application logs
+   - Set up alerts for excessive rate limit hits
+   - Monitor patterns to identify potential abuse
+
+### Example Enhanced Configuration
+
+```php
+// In RouteServiceProvider.php
+protected function configureRateLimiting()
+{
+    // Default API rate limit
+    RateLimiter::for('api', function (Request $request) {
+        return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+    });
+    
+    // Stricter limit for write operations
+    RateLimiter::for('api-writes', function (Request $request) {
+        return Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());
+    });
+}
+```
+
+<Warning>
+  **Security Note**: Rate limiting is an essential security measure to prevent brute force attacks and API abuse. Never disable rate limiting in production environments.
+</Warning>
+
+## Testing Rate Limits
+
+To test rate limit behavior in development:
+
+```bash
+# Send 61 requests rapidly to trigger rate limit
+for i in {1..61}; do
+  curl -i https://api.example.com/api/listPassword
+  echo "Request $i"
+done
+```
+
+The 61st request should return a 429 status code with a `Retry-After` header.
