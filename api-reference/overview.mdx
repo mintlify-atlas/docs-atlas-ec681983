@@ -25,7 +25,11 @@ The Password Manager API provides the following endpoints for managing passwords
 
 ## Authentication
 
-Currently, the API endpoints do not require authentication. All endpoints are publicly accessible.
+<Warning>
+  **By default, the API endpoints do NOT require authentication.** All endpoints are publicly accessible in the current implementation.
+</Warning>
+
+For production use, you should protect these endpoints with Laravel Sanctum authentication. See the [Authentication](/authentication) guide for instructions on securing your API.
 
 ## Response Format
 

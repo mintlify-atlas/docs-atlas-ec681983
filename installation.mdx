@@ -17,8 +17,8 @@ description: Install and set up the Password Manager API on your server
     Get the source code for the Password Manager API:
     
     ```bash
-    git clone <repository-url>
-    cd password-manager-api
+    git clone https://github.com/JanContrerasDev/gestor-contrasenas.git
+    cd gestor-contrasenas
     ```
   </Step>
 
@@ -68,7 +68,7 @@ description: Install and set up the Password Manager API on your server
     ```
   </Step>
 
-  <Step title="Run Database Migrations">
+  <Step title="Run Database Migrations and Create Passwords Table">
     Execute the migrations to create the required database tables:
     
     ```bash
@@ -80,11 +80,59 @@ description: Install and set up the Password Manager API on your server
     - `password_resets` - Password reset tokens
     - `failed_jobs` - Failed queue jobs
     - `personal_access_tokens` - Sanctum API tokens
-    - `passwords` - Password storage (if migration exists)
     
     <Warning>
-      Running migrations will modify your database schema. Always backup your database before running migrations in production.
+      The `passwords` table migration is not included in the repository. You need to create it manually or generate a migration for it.
     </Warning>
+    
+    **Create the passwords table:**
+    
+    You can create the table manually using this SQL:
+    
+    ```sql
+    CREATE TABLE passwords (
+        id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        password VARCHAR(255) NOT NULL,
+        sistema VARCHAR(255) NOT NULL,
+        usuario VARCHAR(255) NOT NULL,
+        status TINYINT DEFAULT 1,
+        created_at TIMESTAMP NULL,
+        updated_at TIMESTAMP NULL
+    );
+    ```
+    
+    Or generate a Laravel migration:
+    
+    ```bash
+    php artisan make:migration create_passwords_table
+    ```
+    
+    Then add this code to the migration file:
+    
+    ```php
+    public function up()
+    {
+        Schema::create('passwords', function (Blueprint $table) {
+            $table->id();
+            $table->string('password');
+            $table->string('sistema');
+            $table->string('usuario');
+            $table->tinyInteger('status')->default(1);
+            $table->timestamps();
+        });
+    }
+    
+    public function down()
+    {
+        Schema::dropIfExists('passwords');
+    }
+    ```
+    
+    Run the migration:
+    
+    ```bash
+    php artisan migrate
+    ```
   </Step>
 
   <Step title="Start the Development Server">

@@ -137,7 +137,11 @@ $token = $user->createToken('api-token', ['password:read', 'password:create'])->
 
 ## Protecting Routes
 
-Use the `auth:sanctum` middleware to protect API routes:
+<Warning>
+  **IMPORTANT:** The current API routes in `routes/api.php` are NOT protected by authentication. All endpoints are publicly accessible by default.
+</Warning>
+
+To secure your API, add the `auth:sanctum` middleware to protect routes:
 
 ```php routes/api.php
 use App\Http\Controllers\Api\passwordsController;
@@ -151,9 +155,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 ```
 
-<Warning>
-  Currently, the API routes in `routes/api.php` are not protected by authentication. Add the `auth:sanctum` middleware to secure them.
-</Warning>
+After adding authentication middleware, all requests to these endpoints will require a valid API token.
 
 ## Making Authenticated Requests
 
